@@ -20,6 +20,7 @@ window.APP_CONFIG = {
     namaPanjang: 'UPT Puskesmas Sedau',
     kabupaten: 'Kabupaten Lombok Barat',
     aplikasi: 'Dashboard Kehadiran',
+    pemilik: 'SPHERES',            // nama pada baris hak cipta di halaman login
     logo: 'assets/logo.png',
     hariKerja: [1, 2, 3, 4, 5, 6],   // 0=Minggu ... 6=Sabtu
     hariLibur: []                    // 'YYYY-MM-DD' untuk libur nasional / cuti bersama

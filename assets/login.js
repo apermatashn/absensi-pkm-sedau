@@ -21,32 +21,13 @@
     $('#loginKab').textContent = CFG.org.kabupaten;
     $('#loginLogo').src = CFG.org.logo;
     $('#loginLogo').alt = 'Logo ' + CFG.org.nama;
-    $('#loginFoot').textContent = '© ' + new Date().getFullYear() + ' ' + CFG.org.nama + '. All rights reserved.';
-    $('#loginWarn').hidden = !CFG.loginPrototipe;
-    // ringkas: satu baris teks tujuan agar tidak menambah tinggi halaman
-    $('#inSandi').setAttribute('placeholder', 'Masukkan password');
+    $('#loginFoot').textContent = '© ' + new Date().getFullYear() + ' ' + CFG.org.pemilik + '. All rights reserved.';
     document.title = 'Masuk — ' + CFG.org.aplikasi;
   }
 
   function pesan(txt) {
     var e = $('#loginErr');
     e.textContent = txt; e.hidden = false;
-  }
-
-  /* Tampilkan hak akses peran terpilih, supaya pengguna tahu ia akan
-     dibawa ke halaman apa sebelum menekan Masuk. */
-  function petunjukPeran() {
-    var role = $('#inPeran').value, box = $('#peranInfo');
-    if (!role) { box.hidden = true; return; }
-    var p = CFG.peran[role];
-    var tuju = { dashboard: 'Dashboard', harian: 'Kehadiran harian', rekap: 'Rekap bulanan' }[window.Sesi.mulaiDi(role)];
-    box.innerHTML = '<b>' + esc(tuju) + '</b> · ' + (p.shiftBoleh.length
-      ? 'boleh input ' + p.shiftBoleh.map(function (s) {
-          var t = ((CFG.shift[s] || {}).label || s).replace(/^(Apel|Piket)\s+/i, '');
-          return esc(t.charAt(0).toUpperCase() + t.slice(1));
-        }).join(', ')
-      : 'hanya melihat data');
-    box.hidden = false;
   }
 
   function masuk() {
@@ -71,7 +52,6 @@
     $('#inSandi').addEventListener('keydown', function (e) { if (e.key === 'Enter') masuk(); });
     $('#inPeran').addEventListener('change', function () {
       $('#loginErr').hidden = true;
-      petunjukPeran();
       if ($('#inPeran').value) $('#inSandi').focus();
     });
     $('#btnMata').addEventListener('click', function () {

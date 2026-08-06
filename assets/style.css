@@ -108,10 +108,6 @@ html[data-theme="dark"] .lg-pill{background:#22262C}
 #btnMata svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.8}
 #btnMata:hover svg{stroke:var(--sea)}
 
-.peraninfo{margin:-4px 0 clamp(9px,1.6vh,14px);padding:9px 14px;border-radius:12px;
-  background:color-mix(in srgb,var(--sea) 8%,var(--surface));
-  font-size:11.5px;color:var(--muted);line-height:1.55}
-.peraninfo b{color:var(--ink);font-weight:600}
 
 .lg-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
   margin:2px 3px clamp(12px,2vh,18px)}
@@ -133,23 +129,12 @@ html[data-theme="dark"] .lg-pill{background:#22262C}
   margin:clamp(12px,2vh,20px) 0 0;font-size:11.5px;color:var(--muted);line-height:1.5}
 .lg-note svg{width:15px;height:15px;stroke:var(--sea);fill:none;stroke-width:1.7;flex:none}
 
-.lg-warn{margin-top:clamp(10px,1.6vh,16px);font-size:11px;color:var(--muted)}
-.lg-warn summary{cursor:pointer;list-style:none;display:inline-flex;gap:6px;align-items:center;
-  color:#A9631A;font-weight:600;border-radius:6px}
-html[data-theme="dark"] .lg-warn summary{color:#C8A97A}
-.lg-warn summary::-webkit-details-marker{display:none}
-.lg-warn summary::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--tangerine);flex:none}
-.lg-warn summary::after{content:'▸';font-size:9px;opacity:.7}
-.lg-warn[open] summary::after{content:'▾'}
-.lg-warn p{margin:7px 0 0;line-height:1.6;padding-left:13px;border-left:2px solid var(--line)}
-.lg-warn code{font-size:10.5px;background:var(--surface-2);padding:1px 4px;border-radius:4px}
-.lg-foot{margin:clamp(10px,1.6vh,18px) 0 0;text-align:center;font-size:10.5px;color:var(--muted)}
+html[data-theme="dark"] .lg-foot{margin:clamp(10px,1.6vh,18px) 0 0;text-align:center;font-size:10.5px;color:var(--muted)}
 
 /* layar pendek: rapatkan, sembunyikan hiasan yang tidak esensial */
 @media(max-height:700px){
   .lg-desc,.lg-chips{display:none}
-  .lg-warn{margin-top:8px}
-  .lg-note{margin-top:10px}
+    .lg-note{margin-top:10px}
 }
 @media(max-height:580px){
   .lg-brandin img{height:52px}
@@ -182,12 +167,8 @@ html[data-theme="dark"] .lg-warn summary{color:#C8A97A}
 .nav button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;flex:none}
 .nav button:hover{background:rgba(255,255,255,.08)}
 .nav button[aria-current="page"]{background:rgba(255,255,255,.15);color:var(--side-on);font-weight:600}
-.side-foot{margin-top:22px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12);
-  font-size:10.5px;color:#8FBDB7;line-height:1.5}
-.side-foot-x{margin-top:5px}
-.side-foot b{color:var(--side-on)}
 html[data-side="min"] .brand b,html[data-side="min"] .brand span,
-html[data-side="min"] .nav button span,html[data-side="min"] .side-foot{display:none}
+html[data-side="min"] .nav button span,html[data-side="min"] .side-collapse span{display:none}
 html[data-side="min"] .brand-logo{height:34px;margin-bottom:0}
 html[data-side="min"] .nav button{justify-content:center;padding:10px 0}
 html[data-side="min"] .side{padding:16px 8px}
@@ -399,10 +380,39 @@ html[data-theme="dark"] .c-BELUM{border-color:#4A4640}
   .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
   .nav button{white-space:nowrap}
   html[data-side="min"] .brand b,html[data-side="min"] .nav button span{display:inline}
-  .side-foot{display:none}
   #btnMin{display:none}
   .top h1{margin-right:0}
   .searchbox{order:10;flex-basis:100%;max-width:none}
 }
 @media(max-width:560px){ .kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .top h1{font-size:15px} }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- tombol lipat di dalam sidebar ---- */
+.side-collapse{display:flex;align-items:center;gap:10px;width:100%;margin-top:14px;padding:9px 10px;
+  border:0;border-top:1px solid rgba(255,255,255,.12);border-radius:0;background:none;
+  color:#8FBDB7;font-size:11.5px;cursor:pointer;text-align:left}
+.side-collapse svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex:none;
+  transition:transform .16s}
+.side-collapse:hover{color:var(--side-on)}
+html[data-side="min"] .side-collapse{justify-content:center;padding:10px 0}
+html[data-side="min"] .side-collapse svg{transform:rotate(180deg)}
+@media(max-width:820px){.side-collapse{display:none}}
+
+/* ---- donut: legenda di bawah, angka muncul saat hover ---- */
+.donutbox{position:relative;display:grid;place-items:center;padding:4px 0 2px}
+.donut{width:100%;max-width:158px;height:auto;overflow:visible}
+.donut .arc{cursor:pointer;transition:stroke-width .13s,opacity .13s}
+.donut .arc:hover,.donut .arc:focus{stroke-width:7;outline:none}
+.donutctr{position:absolute;text-align:center;pointer-events:none;transition:opacity .13s;line-height:1.15}
+.donutctr b{display:block;font-size:21px;font-weight:600;letter-spacing:-.02em}
+.donutctr span{font-size:10.5px;color:var(--muted)}
+.donuttip{position:absolute;transform:translate(-50%,-100%);background:var(--petrol);color:#fff;
+  padding:6px 11px;border-radius:8px;font-size:11.5px;white-space:nowrap;pointer-events:none;
+  z-index:4;box-shadow:0 6px 16px -8px rgba(46,42,36,.5);line-height:1.35}
+.donuttip b{display:block;font-weight:600}
+.donuttip span{opacity:.85;font-variant-numeric:tabular-nums}
+html[data-theme="dark"] .donuttip{background:#0A2726}
+.donutlegend{display:flex;flex-wrap:wrap;gap:5px 13px;justify-content:center;margin-top:12px;
+  padding-top:11px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.donutlegend em{font-style:normal;display:flex;gap:6px;align-items:center;transition:opacity .13s}
+.donutlegend em.dim{opacity:.32}

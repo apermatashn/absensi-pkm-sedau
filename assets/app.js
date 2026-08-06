@@ -268,17 +268,47 @@
     urut.forEach(function (k) {
       var v = r.c[k] / tot * 100;
       var w = KODE[k].warna === 'transparent' ? '#6B6154' : KODE[k].warna;
-      arcs += '<circle cx="21" cy="21" r="15.9" fill="none" stroke="' + w + '" stroke-width="5" ' +
-        'stroke-dasharray="' + v.toFixed(2) + ' ' + (100 - v).toFixed(2) + '" stroke-dashoffset="' + off.toFixed(2) + '"/>';
-      off -= v;
       var nm = (!bolehLihatAlasan() && KODE[k].kategori === 'sah') ? 'Berizin' : KODE[k].nama;
-      leg += '<div><em><span class="dot" style="background:' + w + '"></span>' + nm + '</em><span>' +
-        r.c[k] + ' · ' + v.toFixed(1) + '%</span></div>';
+      arcs += '<circle class="arc" cx="21" cy="21" r="15.9" fill="none" stroke="' + w + '" stroke-width="5" ' +
+        'stroke-dasharray="' + v.toFixed(2) + ' ' + (100 - v).toFixed(2) + '" stroke-dashoffset="' + off.toFixed(2) + '" ' +
+        'data-nm="' + esc(nm) + '" data-n="' + r.c[k] + '" data-p="' + v.toFixed(1) + '" ' +
+        'tabindex="0" role="img" aria-label="' + esc(nm) + ': ' + r.c[k] + ' orang, ' + v.toFixed(1) + ' persen"/>';
+      off -= v;
+      leg += '<em data-nm="' + esc(nm) + '"><span class="dot" style="background:' + w + '"></span>' + nm + '</em>';
     });
-    $('#chDonut').innerHTML = '<div class="donut-row"><svg viewBox="0 0 42 42" width="104" height="104" ' +
-      'role="img" aria-label="Diagram donat distribusi status kehadiran">' +
-      '<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--line)" stroke-width="5"/>' + arcs +
-      '</svg><div class="legend">' + leg + '</div></div>';
+    $('#chDonut').innerHTML =
+      '<div class="donutbox">' +
+        '<svg class="donut" viewBox="0 0 42 42" role="group" aria-label="Diagram donat distribusi kehadiran">' +
+          '<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--line)" stroke-width="5"/>' + arcs +
+        '</svg>' +
+        '<div class="donuttip" id="donutTip" hidden></div>' +
+        '<div class="donutctr" id="donutCtr"><b>' + tot + '</b><span>pegawai</span></div>' +
+      '</div>' +
+      '<div class="donutlegend">' + leg + '</div>';
+
+    var tip = $('#donutTip'), ctr = $('#donutCtr'), box = $('.donutbox');
+    function tampil(el) {
+      tip.innerHTML = '<b>' + el.dataset.nm + '</b><span>' + el.dataset.n + ' (' + el.dataset.p + '%)</span>';
+      tip.hidden = false; ctr.style.opacity = '0';
+      $$('.donutlegend em').forEach(function (e) {
+        e.classList.toggle('dim', e.dataset.nm !== el.dataset.nm);
+      });
+    }
+    function sembunyi() {
+      tip.hidden = true; ctr.style.opacity = '1';
+      $$('.donutlegend em').forEach(function (e) { e.classList.remove('dim'); });
+    }
+    $$('#chDonut .arc').forEach(function (el) {
+      el.addEventListener('mouseenter', function () { tampil(el); });
+      el.addEventListener('focus', function () { tampil(el); });
+      el.addEventListener('blur', sembunyi);
+      el.addEventListener('mousemove', function (ev) {
+        var b = box.getBoundingClientRect();
+        tip.style.left = Math.max(4, Math.min(b.width - 4, ev.clientX - b.left)) + 'px';
+        tip.style.top = (ev.clientY - b.top - 12) + 'px';
+      });
+    });
+    box.addEventListener('mouseleave', sembunyi);
   }
 
   function renderTapBulan() {
@@ -343,14 +373,18 @@
     $('#hTglLabel').textContent = labelTanggal(tgl) + ' · ' + (CFG.shift[S.shift] || {}).label;
     var editable = bolehInput() && isKerja(tgl);
     var pr = peran();
-    $('#hNote').innerHTML = editable
-      ? (API.mode === 'supabase'
-          ? 'Perubahan tersimpan ke database dan tercatat di audit trail.'
-          : '<b>Mode ' + API.mode + '</b> — perubahan hanya tersimpan di memori browser dan hilang saat halaman dimuat ulang. Aktifkan mode <b>supabase</b> agar permanen.')
-      : (!isKerja(tgl) ? 'Bukan hari kerja — tidak ada absensi.'
-          : 'Peran <b>' + esc(pr.label) + '</b> tidak berhak menginput shift ' +
-            esc((CFG.shift[S.shift] || {}).label) + '. Tampilan hanya-baca.' +
-            (pr.shiftBoleh.length ? ' Shift yang boleh Anda input: <b>' + pr.shiftBoleh.join(', ') + '</b>.' : ''));
+    // Catatan hanya ditampilkan bila pengguna TIDAK bisa mengedit, karena itu
+    // menjelaskan sebabnya. Saat bisa mengedit, tidak ada yang perlu dijelaskan.
+    var nt = $('#hNote');
+    if (editable) { nt.hidden = true; nt.innerHTML = ''; }
+    else {
+      nt.hidden = false;
+      nt.innerHTML = !isKerja(tgl)
+        ? 'Bukan hari kerja — tidak ada absensi.'
+        : 'Peran <b>' + esc(pr.label) + '</b> tidak berhak menginput shift ' +
+          esc((CFG.shift[S.shift] || {}).label) + '. Tampilan hanya-baca.' +
+          (pr.shiftBoleh.length ? ' Shift yang boleh Anda input: <b>' + pr.shiftBoleh.join(', ') + '</b>.' : '');
+    }
 
     var list = pegawaiAktif().map(function (p, i) {
       return { p: p, no: i + 1, kode: kodeDi(p.id, tgl) || 'BELUM' };
@@ -634,11 +668,9 @@
     $('#brandOrg').textContent = CFG.org.namaPanjang;
     $('#brandLogo').src = CFG.org.logo;
     document.title = CFG.org.aplikasi + ' — ' + CFG.org.nama;
-    $('#modeTag').innerHTML = 'Sumber data <b>' + API.mode + '</b>';
 
     var pr = peran();
     $('#whoNama').textContent = pr.label;
-    $('#whoRole').textContent = API.mode === 'supabase' ? 'terautentikasi' : 'mode prototipe';
     $('#whoAv').textContent = pr.label.split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
     $('#whoDesc').textContent = pr.deskripsi;
 
@@ -651,12 +683,22 @@
 
     // event global
     $$('.nav button').forEach(function (b) { b.addEventListener('click', function () { pindah(b.dataset.view); }); });
-    $('#btnMin').addEventListener('click', function () {
+    function lipat() {
       var d = document.documentElement;
       d.dataset.side = d.dataset.side === 'min' ? 'full' : 'min';
       try { localStorage.setItem('dk-side', d.dataset.side); } catch (e) {}
-      $('#btnMin').setAttribute('aria-label', d.dataset.side === 'min' ? 'Perbesar menu samping' : 'Perkecil menu samping');
-    });
+      var kecil = d.dataset.side === 'min';
+      var lbl = kecil ? 'Perbesar menu samping' : 'Perkecil menu samping';
+      ['#btnMin', '#btnLipat'].forEach(function (id) {
+        var b = $(id); if (!b) return;
+        b.setAttribute('aria-label', lbl); b.setAttribute('title', lbl);
+      });
+      var t = $('#btnLipat span'); if (t) t.textContent = kecil ? 'Perbesar' : 'Perkecil menu';
+    }
+    $('#btnMin').addEventListener('click', lipat);
+    if ($('#btnLipat')) $('#btnLipat').addEventListener('click', lipat);
+    // selaraskan label dengan keadaan yang tersimpan
+    if (document.documentElement.dataset.side === 'min') { lipat(); lipat(); }
     $('#btnTheme').addEventListener('click', function () {
       var d = document.documentElement;
       d.dataset.theme = d.dataset.theme === 'dark' ? 'light' : 'dark';
