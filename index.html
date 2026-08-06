@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
 <head>
@@ -6,6 +7,7 @@
 <title>Dashboard Kehadiran</title>
 <meta name="description" content="Dashboard kehadiran pegawai UPT Puskesmas Sedau.">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,51 +15,136 @@
 </head>
 <body>
 
-<div id="loader" style="min-height:70vh;display:grid;place-items:center;padding:24px;font-size:13px;color:#7B7468">
+<!-- ==================== LOGIN ==================== -->
+<div class="login" id="login">
+  <div class="login-card">
+    <div class="login-left">
+      <div class="blob blob-a" aria-hidden="true"></div>
+      <div class="blob blob-b" aria-hidden="true"></div>
+      <div class="login-left-in">
+        <img id="loginLogo" src="assets/logo.png" alt="Logo Puskesmas Sedau" width="120" height="132">
+        <h1 id="loginJudul">Dashboard Kehadiran<br>Puskesmas Sedau</h1>
+        <span class="rule" aria-hidden="true"></span>
+        <p class="kab" id="loginKab">Kabupaten Lombok Barat</p>
+        <p class="desc">Sistem informasi untuk mencatat, memonitor,<br>dan melaporkan kehadiran pegawai secara digital.</p>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-ava" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>
+      </div>
+      <h2>Selamat Datang</h2>
+      <p class="sub">Silakan masuk untuk melanjutkan</p>
+
+      <div class="lf">
+        <label for="inPeran">Pilih Peran</label>
+        <select id="inPeran" autocomplete="off"></select>
+      </div>
+
+      <div class="lf">
+        <label for="inSandi">Password</label>
+        <div class="lf-pw">
+          <input id="inSandi" type="password" placeholder="Masukkan password" autocomplete="current-password">
+          <button type="button" id="btnMata" aria-label="Tampilkan password">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="lf-row">
+        <label class="chk"><input type="checkbox" id="inIngat"><span>Ingat saya</span></label>
+        <button type="button" class="linkish" id="btnLupa">Lupa password?</button>
+      </div>
+
+      <p class="lf-err" id="loginErr" role="alert" hidden></p>
+      <button type="button" class="lf-go" id="btnMasuk">Masuk</button>
+
+      <div class="lf-or"><span>atau</span></div>
+
+      <div class="lf-note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3.5v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9v-5z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+        <span>Akses terbatas sesuai hak dan peran Anda.<br>Jaga kerahasiaan akun Anda.</span>
+      </div>
+
+      <div class="lf-warn" id="loginWarn">
+        <b>Prototipe.</b> Password tersimpan di dalam file JavaScript dan bisa dibaca
+        siapa pun lewat View Source. Ini pemilih peran, bukan autentikasi.
+        Ganti dengan Supabase Auth sebelum data pegawai yang sebenarnya masuk.
+      </div>
+    </div>
+  </div>
+  <p class="login-foot" id="loginFoot"></p>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="loader" hidden style="min-height:70vh;display:grid;place-items:center;padding:24px;font-size:13px;color:#7B7468">
   Memuat data kehadiran…
 </div>
 
-<div class="shell" id="shell" style="visibility:hidden">
+<div class="shell" id="shell" hidden>
 
-  <aside class="side">
+  <aside class="side" id="side">
     <div class="brand">
-      <span class="brand-m" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </span>
-      <span><b id="brandNama">Dashboard Kehadiran</b><span id="brandOrg">UPT Puskesmas Sedau</span></span>
+      <img class="brand-logo" id="brandLogo" src="assets/logo.png" alt="" width="46" height="50">
+      <b id="brandNama">Dashboard Kehadiran</b>
+      <span id="brandOrg">UPT Puskesmas Sedau</span>
     </div>
     <nav class="nav" aria-label="Menu utama">
       <button data-view="dashboard" data-title="Dashboard" aria-current="page">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
       <button data-view="harian" data-title="Kehadiran harian">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Kehadiran harian</button>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span>Kehadiran harian</span></button>
       <button data-view="rekap" data-title="Rekap bulanan">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Rekap bulanan</button>
-      <button data-view="pegawai" data-title="Pegawai">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Pegawai</button>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg><span>Rekap bulanan</span></button>
     </nav>
     <div class="side-foot">
       <div id="modeTag"></div>
-      <div style="margin-top:5px">Transparan: semua role melihat data <b>seluruh pegawai</b>.</div>
+      <div class="side-foot-x">Semua peran melihat data <b>seluruh pegawai</b>.</div>
     </div>
   </aside>
 
   <div class="main">
     <header class="top">
+      <button class="icobtn" id="btnMin" aria-label="Perkecil menu samping" title="Perkecil menu samping">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       <h1 id="judul">Dashboard</h1>
       <div class="searchbox">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
         <input id="inCari" type="search" placeholder="Cari nama atau NIP…" aria-label="Cari pegawai">
       </div>
       <select class="field" id="inKelompok" aria-label="Filter kelompok pegawai"></select>
-      <button class="ghost" id="btnCsv" title="Unduh CSV bulan aktif">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>CSV</button>
-      <button class="ghost" id="btnCetak" title="Cetak / simpan PDF">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-6h16v6h-2M8 14h8v7H8z"/></svg>Cetak</button>
-      <button class="ghost" id="btnTheme" title="Ganti tema terang / gelap" aria-label="Ganti tema">
+
+      <div class="notifwrap">
+        <button class="icobtn" id="btnNotif" aria-label="Notifikasi" aria-expanded="false" title="Notifikasi">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+          <span class="dotbadge" id="notifBadge" hidden></span>
+        </button>
+        <div class="notifpanel" id="notifPanel" hidden>
+          <div class="notifhead">
+            <b>Notifikasi</b>
+            <button type="button" class="linkish sm" id="btnNotifClear">Tandai terbaca</button>
+          </div>
+          <div id="notifList"></div>
+          <p class="notiffoot" id="notifFoot"></p>
+        </div>
+      </div>
+
+      <button class="ghost" id="btnUnduh" title="Unduh rekap bulan aktif (Excel)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg><span>Unduh</span></button>
+      <button class="icobtn" id="btnTheme" title="Ganti tema terang / gelap" aria-label="Ganti tema">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z"/></svg></button>
-      <div class="who"><span class="av" id="whoAv">AD</span>
-        <span><span id="whoNama">Pengguna</span><br><span style="font-weight:400;color:var(--muted);font-size:10.5px" id="whoRole">—</span></span>
+
+      <div class="whowrap">
+        <button class="who" id="btnWho" aria-expanded="false" aria-label="Menu pengguna">
+          <span class="av" id="whoAv">AD</span>
+          <span class="whotxt"><span id="whoNama">Pengguna</span><span id="whoRole">—</span></span>
+        </button>
+        <div class="whopanel" id="whoPanel" hidden>
+          <p id="whoDesc"></p>
+          <button type="button" class="ghost w" id="btnKeluar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 17l5-5-5-5M20 12H9M12 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/></svg>Keluar</button>
+        </div>
       </div>
     </header>
 
@@ -68,7 +155,7 @@
         <input class="field" type="date" id="inTgl" aria-label="Pilih tanggal">
       </div>
 
-      <div class="banner" id="banner" style="display:none">
+      <div class="banner" id="banner" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
         <div id="bannerTxt"></div>
       </div>
@@ -76,15 +163,13 @@
       <div class="kpis" id="kpis"></div>
 
       <div class="grid3">
-        <div class="panel"><h2>Rentang kehadiran <small>30 hari terakhir</small></h2><div id="chTren"></div></div>
         <div class="panel"><h2>Distribusi status</h2><div id="chDonut"></div></div>
-        <div class="panel"><h2>TAP per bulan</h2><div id="chTap"></div></div>
+        <div class="panel"><h2>TAP per bulan <small id="tapTahun"></small></h2><div id="chTap"></div></div>
+        <div class="panel"><h2>Belum diinput <small id="belumCount"></small></h2><div id="belumList"></div></div>
       </div>
 
-      <div class="grid3">
-        <div class="panel"><h2>Belum diinput hari ini <small id="belumCount"></small></h2><div id="belumList"></div></div>
-        <div class="panel"><h2>TAP terbanyak <small>bulan aktif</small></h2><div id="tapTop"></div></div>
-        <div class="panel"><h2>Aktivitas terbaru</h2><div id="auditList"></div></div>
+      <div class="grid1">
+        <div class="panel"><h2>TAP terbanyak <small id="tapBulanLabel"></small></h2><div id="tapTop"></div></div>
       </div>
     </section>
 
@@ -92,13 +177,20 @@
     <section class="view" id="view-harian">
       <div class="rowhead">
         <p>Input kehadiran <b id="hTglLabel">—</b></p>
+        <select class="field" id="inShift" aria-label="Pilih shift"></select>
         <input class="field" type="date" id="hInTgl" aria-label="Pilih tanggal input">
       </div>
-      <p class="ro" id="hNote" style="margin:0 0 12px"></p>
+      <p class="ro" id="hNote"></p>
       <div class="tbl-wrap" style="max-height:70vh">
-        <table class="data">
-          <thead><tr><th style="width:36px">No</th><th style="width:170px">NIP</th><th>Nama pegawai</th>
-            <th style="width:150px">Kelompok</th><th style="width:210px">Status</th></tr></thead>
+        <table class="data sortable">
+          <thead><tr>
+            <th class="sortcol" data-k="no"  style="width:52px">No</th>
+            <th class="sortcol" data-k="nip" style="width:180px">NIP</th>
+            <th class="sortcol" data-k="nama">Nama pegawai</th>
+            <th class="sortcol" data-k="gol" style="width:78px">Gol</th>
+            <th class="sortcol" data-k="kel" style="width:170px">Kelompok</th>
+            <th class="sortcol" data-k="kode" style="width:220px">Status</th>
+          </tr></thead>
           <tbody id="hBody"></tbody>
         </table>
       </div>
@@ -110,33 +202,21 @@
         <p>Rekap kehadiran <b id="rBulanLabel">—</b></p>
         <input class="field" type="month" id="inBulan" aria-label="Pilih bulan">
       </div>
-      <div class="cal-wrap" style="max-height:68vh">
+      <div class="sumcards" id="rSum"></div>
+      <p class="scrollhint" id="rHint">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M11 9l-3 3 3 3M13 9l3 3-3 3"/></svg>
+        Geser tabel ke kanan untuk melihat tanggal berikutnya dan kolom rekapan.
+      </p>
+      <div class="cal-wrap" id="rWrap">
         <table class="cal"><thead id="rHead"></thead><tbody id="rBody"></tbody></table>
       </div>
-      <div class="sum-row" id="rSum"></div>
       <div class="callegend" id="rLegend"></div>
-    </section>
-
-    <!-- ============ PEGAWAI ============ -->
-    <section class="view" id="view-pegawai">
-      <div class="rowhead"><p>Rekap per pegawai — bulan aktif. Kolom terakhir adalah rentang, bukan angka tunggal, selama masih ada sel belum diinput.</p></div>
-      <div class="tbl-wrap" style="max-height:72vh">
-        <table class="data">
-          <thead><tr><th style="width:36px">No</th><th style="width:170px">NIP</th><th>Nama</th>
-            <th style="width:64px">Gol</th><th style="width:150px">Kelompok</th>
-            <th style="width:48px">H</th><th style="width:52px">Sah</th><th style="width:60px">TAP/TK</th>
-            <th style="width:60px">Belum</th><th style="width:110px">% hadir</th></tr></thead>
-          <tbody id="pBody"></tbody>
-        </table>
-      </div>
     </section>
 
   </div>
 </div>
 
-<div id="toast" role="status" aria-live="polite" style="position:fixed;bottom:18px;left:50%;transform:translate(-50%,8px);
-  background:#0F4C4B;color:#fff;padding:9px 16px;border-radius:8px;font-size:12.5px;opacity:0;
-  transition:opacity .2s,transform .2s;pointer-events:none;z-index:50"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <!-- Supabase hanya dimuat kalau dipakai. Hapus komentar jika mode = 'supabase'. -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script> -->
