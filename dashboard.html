@@ -43,10 +43,10 @@
       <button data-view="rekap" data-title="Rekap bulanan">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg><span>Rekap bulanan</span></button>
     </nav>
-    <div class="side-foot">
-      <div id="modeTag"></div>
-      <div class="side-foot-x">Semua peran melihat data <b>seluruh pegawai</b>.</div>
-    </div>
+    <button class="side-collapse" id="btnLipat" aria-label="Perkecil menu samping" title="Perkecil menu samping">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Perkecil menu</span>
+    </button>
   </aside>
 
   <div class="main">
@@ -83,7 +83,7 @@
       <div class="whowrap">
         <button class="who" id="btnWho" aria-expanded="false" aria-label="Menu pengguna">
           <span class="av" id="whoAv">AD</span>
-          <span class="whotxt"><span id="whoNama">Pengguna</span><span id="whoRole">—</span></span>
+          <span class="whotxt"><span id="whoNama">Pengguna</span></span>
         </button>
         <div class="whopanel" id="whoPanel" hidden>
           <p id="whoDesc"></p>
@@ -108,7 +108,7 @@
       <div class="kpis" id="kpis"></div>
 
       <div class="grid3">
-        <div class="panel"><h2>Distribusi status</h2><div id="chDonut"></div></div>
+        <div class="panel"><h2>Distribusi Kehadiran</h2><div id="chDonut"></div></div>
         <div class="panel"><h2>TAP per bulan <small id="tapTahun"></small></h2><div id="chTap"></div></div>
         <div class="panel"><h2>Belum diinput <small id="belumCount"></small></h2><div id="belumList"></div></div>
       </div>
@@ -125,7 +125,7 @@
         <select class="field" id="inShift" aria-label="Pilih shift"></select>
         <input class="field" type="date" id="hInTgl" aria-label="Pilih tanggal input">
       </div>
-      <p class="ro" id="hNote"></p>
+      <p class="ro" id="hNote" hidden></p>
       <div class="tbl-wrap" style="max-height:70vh">
         <table class="data sortable">
           <thead><tr>
