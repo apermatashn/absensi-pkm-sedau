@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk — Dashboard Kehadiran</title>
+<meta name="description" content="Dashboard kehadiran pegawai UPT Puskesmas Sedau.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/config.js"></script>
+<script src="assets/session.js"></script>
+<script>
+  Sesi.tema();
+  /* Sudah punya sesi? langsung ke dashboard sesuai peran. */
+  (function () { var s = Sesi.baca(); if (s) Sesi.keDashboard(s.role); })();
+</script>
+</head>
+<body class="loginpage">
+
+<main class="lg-stage">
+  <div class="lg-orb lg-orb1" aria-hidden="true"></div>
+  <div class="lg-orb lg-orb2" aria-hidden="true"></div>
+  <div class="lg-orb lg-orb3" aria-hidden="true"></div>
+
+  <div class="lg-card">
+    <span class="lg-spine" aria-hidden="true"></span>
+
+    <!-- ---------- kiri: identitas ---------- -->
+    <section class="lg-brandside">
+      <span class="lg-ring lg-ring1" aria-hidden="true"></span>
+      <span class="lg-ring lg-ring2" aria-hidden="true"></span>
+
+      <div class="lg-brandin">
+        <img id="loginLogo" src="assets/logo.png" alt="Logo Puskesmas Sedau" width="112" height="123">
+        <h1 id="loginJudul">Dashboard Kehadiran<br>Puskesmas Sedau</h1>
+        <span class="lg-rule" aria-hidden="true"></span>
+        <p class="lg-kab" id="loginKab">Kabupaten Lombok Barat</p>
+        <p class="lg-desc">Mencatat, memonitor, dan melaporkan<br>kehadiran pegawai secara digital.</p>
+
+        <ul class="lg-chips" aria-label="Kode status kehadiran yang digunakan sistem">
+          <li style="--c:#16A085">H</li>
+          <li style="--c:#FF8A00">TAP</li>
+          <li style="--c:#C0473E">S</li>
+          <li style="--c:#2F7DC4">I</li>
+          <li style="--c:#7E6BE6">C</li>
+          <li style="--c:#0F4C4B">TD</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- kanan: form ---------- -->
+    <section class="lg-formside">
+      <div class="lg-formin">
+        <span class="lg-ava" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>
+        </span>
+        <h2>Selamat Datang</h2>
+        <p class="lg-sub">Pilih peran Anda untuk melanjutkan</p>
+
+        <label class="lg-lab" for="inPeran">Peran</label>
+        <div class="lg-pill lg-sel">
+          <select id="inPeran" autocomplete="off"></select>
+          <svg class="lg-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+
+        <p class="peraninfo" id="peranInfo" hidden></p>
+
+        <label class="lg-lab" for="inSandi">Password</label>
+        <div class="lg-pill">
+          <input id="inSandi" type="password" placeholder="Masukkan password" autocomplete="current-password">
+          <button type="button" id="btnMata" aria-label="Tampilkan password">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <div class="lg-row">
+          <label class="lg-chk"><input type="checkbox" id="inIngat"><span>Ingat saya</span></label>
+          <button type="button" class="linkish" id="btnLupa">Lupa password?</button>
+        </div>
+
+        <p class="lg-err" id="loginErr" role="alert" hidden></p>
+
+        <button type="button" class="lg-go" id="btnMasuk">Masuk</button>
+
+        <p class="lg-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3.5v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9v-5z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+          Akses terbatas sesuai hak dan peran Anda.
+        </p>
+
+        <details class="lg-warn" id="loginWarn">
+          <summary>Status keamanan: prototipe</summary>
+          <p>Password tersimpan di dalam <code>assets/config.js</code> dan bisa dibaca siapa pun
+          lewat View Source. Ini pemilih peran, bukan autentikasi. Jangan masukkan data pegawai
+          yang sebenarnya sebelum beralih ke Supabase Auth.</p>
+        </details>
+      </div>
+
+      <p class="lg-foot" id="loginFoot"></p>
+    </section>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/login.js"></script>
+</body>
+</html>
