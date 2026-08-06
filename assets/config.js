@@ -13,7 +13,12 @@
    ===================================================================== */
 
 window.APP_CONFIG = {
-  mode: 'sample',
+  mode: 'supabase',
+  loginPrototipe: false, 
+  supabase: {
+  url: 'https://cvukgpwqryvsieupanjs.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2dWtncHdxcnl2c2lldXBhbmpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMTgxMjEsImV4cCI6MjEwMTU5NDEyMX0.yYoTVtBLYS_MpxAyP58_4_LISp5_iZFdNrgksHIOuHk'
+ }
 
   org: {
     nama: 'Puskesmas Sedau',
