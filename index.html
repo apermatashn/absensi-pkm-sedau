@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Kehadiran</title>
+<meta name="description" content="Dashboard kehadiran pegawai UPT Puskesmas Sedau.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="loader" style="min-height:70vh;display:grid;place-items:center;padding:24px;font-size:13px;color:#7B7468">
+  Memuat data kehadiran…
+</div>
+
+<div class="shell" id="shell" style="visibility:hidden">
+
+  <aside class="side">
+    <div class="brand">
+      <span class="brand-m" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span><b id="brandNama">Dashboard Kehadiran</b><span id="brandOrg">UPT Puskesmas Sedau</span></span>
+    </div>
+    <nav class="nav" aria-label="Menu utama">
+      <button data-view="dashboard" data-title="Dashboard" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+      <button data-view="harian" data-title="Kehadiran harian">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Kehadiran harian</button>
+      <button data-view="rekap" data-title="Rekap bulanan">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Rekap bulanan</button>
+      <button data-view="pegawai" data-title="Pegawai">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Pegawai</button>
+    </nav>
+    <div class="side-foot">
+      <div id="modeTag"></div>
+      <div style="margin-top:5px">Transparan: semua role melihat data <b>seluruh pegawai</b>.</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1 id="judul">Dashboard</h1>
+      <div class="searchbox">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="inCari" type="search" placeholder="Cari nama atau NIP…" aria-label="Cari pegawai">
+      </div>
+      <select class="field" id="inKelompok" aria-label="Filter kelompok pegawai"></select>
+      <button class="ghost" id="btnCsv" title="Unduh CSV bulan aktif">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>CSV</button>
+      <button class="ghost" id="btnCetak" title="Cetak / simpan PDF">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-6h16v6h-2M8 14h8v7H8z"/></svg>Cetak</button>
+      <button class="ghost" id="btnTheme" title="Ganti tema terang / gelap" aria-label="Ganti tema">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z"/></svg></button>
+      <div class="who"><span class="av" id="whoAv">AD</span>
+        <span><span id="whoNama">Pengguna</span><br><span style="font-weight:400;color:var(--muted);font-size:10.5px" id="whoRole">—</span></span>
+      </div>
+    </header>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="view on" id="view-dashboard">
+      <div class="rowhead">
+        <p>Ringkasan kehadiran <b id="tglLabel">—</b></p>
+        <input class="field" type="date" id="inTgl" aria-label="Pilih tanggal">
+      </div>
+
+      <div class="banner" id="banner" style="display:none">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        <div id="bannerTxt"></div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="grid3">
+        <div class="panel"><h2>Rentang kehadiran <small>30 hari terakhir</small></h2><div id="chTren"></div></div>
+        <div class="panel"><h2>Distribusi status</h2><div id="chDonut"></div></div>
+        <div class="panel"><h2>TAP per bulan</h2><div id="chTap"></div></div>
+      </div>
+
+      <div class="grid3">
+        <div class="panel"><h2>Belum diinput hari ini <small id="belumCount"></small></h2><div id="belumList"></div></div>
+        <div class="panel"><h2>TAP terbanyak <small>bulan aktif</small></h2><div id="tapTop"></div></div>
+        <div class="panel"><h2>Aktivitas terbaru</h2><div id="auditList"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ HARIAN ============ -->
+    <section class="view" id="view-harian">
+      <div class="rowhead">
+        <p>Input kehadiran <b id="hTglLabel">—</b></p>
+        <input class="field" type="date" id="hInTgl" aria-label="Pilih tanggal input">
+      </div>
+      <p class="ro" id="hNote" style="margin:0 0 12px"></p>
+      <div class="tbl-wrap" style="max-height:70vh">
+        <table class="data">
+          <thead><tr><th style="width:36px">No</th><th style="width:170px">NIP</th><th>Nama pegawai</th>
+            <th style="width:150px">Kelompok</th><th style="width:210px">Status</th></tr></thead>
+          <tbody id="hBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ REKAP ============ -->
+    <section class="view" id="view-rekap">
+      <div class="rowhead">
+        <p>Rekap kehadiran <b id="rBulanLabel">—</b></p>
+        <input class="field" type="month" id="inBulan" aria-label="Pilih bulan">
+      </div>
+      <div class="cal-wrap" style="max-height:68vh">
+        <table class="cal"><thead id="rHead"></thead><tbody id="rBody"></tbody></table>
+      </div>
+      <div class="sum-row" id="rSum"></div>
+      <div class="callegend" id="rLegend"></div>
+    </section>
+
+    <!-- ============ PEGAWAI ============ -->
+    <section class="view" id="view-pegawai">
+      <div class="rowhead"><p>Rekap per pegawai — bulan aktif. Kolom terakhir adalah rentang, bukan angka tunggal, selama masih ada sel belum diinput.</p></div>
+      <div class="tbl-wrap" style="max-height:72vh">
+        <table class="data">
+          <thead><tr><th style="width:36px">No</th><th style="width:170px">NIP</th><th>Nama</th>
+            <th style="width:64px">Gol</th><th style="width:150px">Kelompok</th>
+            <th style="width:48px">H</th><th style="width:52px">Sah</th><th style="width:60px">TAP/TK</th>
+            <th style="width:60px">Belum</th><th style="width:110px">% hadir</th></tr></thead>
+          <tbody id="pBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite" style="position:fixed;bottom:18px;left:50%;transform:translate(-50%,8px);
+  background:#0F4C4B;color:#fff;padding:9px 16px;border-radius:8px;font-size:12.5px;opacity:0;
+  transition:opacity .2s,transform .2s;pointer-events:none;z-index:50"></div>
+
+<!-- Supabase hanya dimuat kalau dipakai. Hapus komentar jika mode = 'supabase'. -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script> -->
+
+<script src="assets/config.js"></script>
+<script src="assets/data-sample.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
