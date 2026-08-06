@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Kehadiran</title>
+<title>Masuk — Dashboard Kehadiran</title>
 <meta name="description" content="Dashboard kehadiran pegawai UPT Puskesmas Sedau.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="assets/logo.png">
@@ -12,9 +11,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/config.js"></script>
+<script src="assets/session.js"></script>
+<script>
+  Sesi.tema();
+  /* Sudah punya sesi? langsung ke dashboard sesuai peran. */
+  (function () { var s = Sesi.baca(); if (s) Sesi.keDashboard(s.role); })();
+</script>
 </head>
-<body>
-
+<body class="loginpage">
 <!-- ==================== LOGIN ==================== -->
 <div class="login" id="login">
   <div class="login-card">
@@ -41,6 +46,8 @@
         <label for="inPeran">Pilih Peran</label>
         <select id="inPeran" autocomplete="off"></select>
       </div>
+
+      <p class="peraninfo" id="peranInfo" hidden></p>
 
       <div class="lf">
         <label for="inSandi">Password</label>
@@ -77,154 +84,8 @@
   <p class="login-foot" id="loginFoot"></p>
 </div>
 
-<!-- ==================== APP ==================== -->
-<div id="loader" hidden style="min-height:70vh;display:grid;place-items:center;padding:24px;font-size:13px;color:#7B7468">
-  Memuat data kehadiran…
-</div>
-
-<div class="shell" id="shell" hidden>
-
-  <aside class="side" id="side">
-    <div class="brand">
-      <img class="brand-logo" id="brandLogo" src="assets/logo.png" alt="" width="46" height="50">
-      <b id="brandNama">Dashboard Kehadiran</b>
-      <span id="brandOrg">UPT Puskesmas Sedau</span>
-    </div>
-    <nav class="nav" aria-label="Menu utama">
-      <button data-view="dashboard" data-title="Dashboard" aria-current="page">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
-      <button data-view="harian" data-title="Kehadiran harian">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span>Kehadiran harian</span></button>
-      <button data-view="rekap" data-title="Rekap bulanan">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg><span>Rekap bulanan</span></button>
-    </nav>
-    <div class="side-foot">
-      <div id="modeTag"></div>
-      <div class="side-foot-x">Semua peran melihat data <b>seluruh pegawai</b>.</div>
-    </div>
-  </aside>
-
-  <div class="main">
-    <header class="top">
-      <button class="icobtn" id="btnMin" aria-label="Perkecil menu samping" title="Perkecil menu samping">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-      <h1 id="judul">Dashboard</h1>
-      <div class="searchbox">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-        <input id="inCari" type="search" placeholder="Cari nama atau NIP…" aria-label="Cari pegawai">
-      </div>
-      <select class="field" id="inKelompok" aria-label="Filter kelompok pegawai"></select>
-
-      <div class="notifwrap">
-        <button class="icobtn" id="btnNotif" aria-label="Notifikasi" aria-expanded="false" title="Notifikasi">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
-          <span class="dotbadge" id="notifBadge" hidden></span>
-        </button>
-        <div class="notifpanel" id="notifPanel" hidden>
-          <div class="notifhead">
-            <b>Notifikasi</b>
-            <button type="button" class="linkish sm" id="btnNotifClear">Tandai terbaca</button>
-          </div>
-          <div id="notifList"></div>
-          <p class="notiffoot" id="notifFoot"></p>
-        </div>
-      </div>
-
-      <button class="ghost" id="btnUnduh" title="Unduh rekap bulan aktif (Excel)">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg><span>Unduh</span></button>
-      <button class="icobtn" id="btnTheme" title="Ganti tema terang / gelap" aria-label="Ganti tema">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z"/></svg></button>
-
-      <div class="whowrap">
-        <button class="who" id="btnWho" aria-expanded="false" aria-label="Menu pengguna">
-          <span class="av" id="whoAv">AD</span>
-          <span class="whotxt"><span id="whoNama">Pengguna</span><span id="whoRole">—</span></span>
-        </button>
-        <div class="whopanel" id="whoPanel" hidden>
-          <p id="whoDesc"></p>
-          <button type="button" class="ghost w" id="btnKeluar">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 17l5-5-5-5M20 12H9M12 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/></svg>Keluar</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- ============ DASHBOARD ============ -->
-    <section class="view on" id="view-dashboard">
-      <div class="rowhead">
-        <p>Ringkasan kehadiran <b id="tglLabel">—</b></p>
-        <input class="field" type="date" id="inTgl" aria-label="Pilih tanggal">
-      </div>
-
-      <div class="banner" id="banner" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
-        <div id="bannerTxt"></div>
-      </div>
-
-      <div class="kpis" id="kpis"></div>
-
-      <div class="grid3">
-        <div class="panel"><h2>Distribusi status</h2><div id="chDonut"></div></div>
-        <div class="panel"><h2>TAP per bulan <small id="tapTahun"></small></h2><div id="chTap"></div></div>
-        <div class="panel"><h2>Belum diinput <small id="belumCount"></small></h2><div id="belumList"></div></div>
-      </div>
-
-      <div class="grid1">
-        <div class="panel"><h2>TAP terbanyak <small id="tapBulanLabel"></small></h2><div id="tapTop"></div></div>
-      </div>
-    </section>
-
-    <!-- ============ HARIAN ============ -->
-    <section class="view" id="view-harian">
-      <div class="rowhead">
-        <p>Input kehadiran <b id="hTglLabel">—</b></p>
-        <select class="field" id="inShift" aria-label="Pilih shift"></select>
-        <input class="field" type="date" id="hInTgl" aria-label="Pilih tanggal input">
-      </div>
-      <p class="ro" id="hNote"></p>
-      <div class="tbl-wrap" style="max-height:70vh">
-        <table class="data sortable">
-          <thead><tr>
-            <th class="sortcol" data-k="no"  style="width:52px">No</th>
-            <th class="sortcol" data-k="nip" style="width:180px">NIP</th>
-            <th class="sortcol" data-k="nama">Nama pegawai</th>
-            <th class="sortcol" data-k="gol" style="width:78px">Gol</th>
-            <th class="sortcol" data-k="kel" style="width:170px">Kelompok</th>
-            <th class="sortcol" data-k="kode" style="width:220px">Status</th>
-          </tr></thead>
-          <tbody id="hBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ============ REKAP ============ -->
-    <section class="view" id="view-rekap">
-      <div class="rowhead">
-        <p>Rekap kehadiran <b id="rBulanLabel">—</b></p>
-        <input class="field" type="month" id="inBulan" aria-label="Pilih bulan">
-      </div>
-      <div class="sumcards" id="rSum"></div>
-      <p class="scrollhint" id="rHint">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M11 9l-3 3 3 3M13 9l3 3-3 3"/></svg>
-        Geser tabel ke kanan untuk melihat tanggal berikutnya dan kolom rekapan.
-      </p>
-      <div class="cal-wrap" id="rWrap">
-        <table class="cal"><thead id="rHead"></thead><tbody id="rBody"></tbody></table>
-      </div>
-      <div class="callegend" id="rLegend"></div>
-    </section>
-
-  </div>
-</div>
-
 <div id="toast" role="status" aria-live="polite"></div>
 
-<!-- Supabase hanya dimuat kalau dipakai. Hapus komentar jika mode = 'supabase'. -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script> -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="assets/config.js"></script>
-<script src="assets/data-sample.js"></script>
-<script src="assets/data.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/login.js"></script>
 </body>
 </html>
