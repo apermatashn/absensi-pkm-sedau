@@ -311,31 +311,123 @@
     box.addEventListener('mouseleave', sembunyi);
   }
 
+  /* Langkah sumbu Y yang "bulat": 1, 2, 5, 10, 20, 50, ... */
+  function langkahBagus(kasar) {
+    if (kasar <= 0) return 1;
+    var p10 = Math.pow(10, Math.floor(Math.log(kasar) / Math.LN10));
+    var r = kasar / p10;
+    return (r <= 1 ? 1 : r <= 2 ? 2 : r <= 5 ? 5 : 10) * p10;
+  }
+
   function renderTapBulan() {
-    var y = S.bulan.slice(0, 4), data = [];
-    $('#tapTahun').textContent = y;
-    for (var m = 0; m < 12; m++) {
-      var pref = y + '-' + String(m + 1).padStart(2, '0'), n = 0;
-      S.kehadiran.forEach(function (k) { if (k.kode === 'TAP' && k.tanggal.indexOf(pref) === 0) n++; });
-      if (n > 0) data.push({ m: m, n: n });
+    var thn = S.bulan.slice(0, 4);
+    var blnAktif = +S.bulan.slice(5, 7) - 1;
+    $('#tapTahun').textContent = thn;
+
+    // hitung TAP tiap bulan pada tahun aktif
+    var per = [];
+    for (var m = 0; m < 12; m++) per.push(0);
+    S.kehadiran.forEach(function (k) {
+      if (k.kode !== 'TAP' || k.tanggal.slice(0, 4) !== thn) return;
+      per[+k.tanggal.slice(5, 7) - 1]++;
+    });
+
+    // Sumbu X hanya memuat bulan yang PUNYA catatan absensi. Bulan tanpa catatan
+    // tidak digambar sebagai 0, karena 0 berarti "tidak ada TAP" sedangkan yang
+    // sebenarnya terjadi adalah "belum ada data" - dua hal yang sangat berbeda.
+    var adaData = [];
+    for (var m3 = 0; m3 < 12; m3++) adaData.push(false);
+    S.kehadiran.forEach(function (k) {
+      if (k.tanggal.slice(0, 4) !== thn || !k.kode || k.kode === 'BELUM') return;
+      adaData[+k.tanggal.slice(5, 7) - 1] = true;
+    });
+    var data = [];
+    for (var m2 = 0; m2 < 12; m2++) {
+      if (adaData[m2]) data.push({ m: m2, n: per[m2], ada: true });
+      else if (m2 === blnAktif) data.push({ m: m2, n: 0, ada: false });
     }
-    if (!data.length) { $('#chTap').innerHTML = '<p class="empty">Belum ada catatan TAP pada ' + y + '.</p>'; return; }
-    var max = Math.max.apply(null, data.map(function (d) { return d.n; })) * 1.28;
-    var W = 240, H = 132, step = (W - 30) / data.length, bw = Math.min(28, step - 8);
-    var bars = data.map(function (d, i) {
-      var x = 26 + i * step, h = (d.n / max) * 94;
-      var akt = (+S.bulan.slice(5, 7) - 1) === d.m;
-      return '<rect x="' + x.toFixed(1) + '" y="' + (108 - h).toFixed(1) + '" width="' + bw.toFixed(1) +
-        '" height="' + h.toFixed(1) + '" rx="2" fill="' + (akt ? '#FF8A00' : '#0F4C4B') + '"/>' +
-        '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (103 - h).toFixed(1) + '" font-size="8.5" ' +
-        'font-weight="600" fill="var(--ink)" text-anchor="middle">' + d.n + '</text>' +
-        '<text x="' + (x + bw / 2).toFixed(1) + '" y="122" font-size="8" fill="var(--muted)" ' +
-        'text-anchor="middle">' + BULAN[d.m].slice(0, 3) + '</text>';
-    }).join('');
-    $('#chTap').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" ' +
-      'aria-label="Diagram batang jumlah TAP per bulan">' +
-      '<line x1="22" y1="108" x2="' + (W - 4) + '" y2="108" stroke="var(--line)"/>' +
-      '<text x="6" y="111" font-size="8" fill="var(--muted)">0</text>' + bars + '</svg>';
+    if (!data.length) {
+      $('#chTap').innerHTML = '<p class="empty">Belum ada catatan absensi pada ' + thn + '.</p>';
+      return;
+    }
+    var maxNilai = Math.max.apply(null, data.map(function (d) { return d.n; }));
+    var tanpaData = data.filter(function (d) { return !d.ada; }).length;
+    if (maxNilai === 0) {
+      $('#chTap').innerHTML = '<p class="empty">Tidak ada kejadian TAP pada ' +
+        (data.length === 1 ? BULAN[data[0].m] + ' ' + thn : thn) + '.</p>';
+      return;
+    }
+
+    // ---- geometri ----
+    var W = 520, H = 268;
+    var L = 62, R = 18, T = 24, B = 56;              // margin: L untuk label sumbu Y
+    var pw = W - L - R, ph = H - T - B;
+    var step = langkahBagus(maxNilai / 4);
+    var atas = Math.ceil(maxNilai / step) * step;
+    var y = function (v) { return T + ph - (v / atas) * ph; };
+
+    // band per bulan; batang selebar 52% band -> otomatis ada jarak dari sumbu Y
+    var band = pw / data.length;
+    var bw = Math.min(46, band * 0.52);
+
+    // ---- garis bantu + tik sumbu Y ----
+    var grid = '', tick = '';
+    for (var v = 0; v <= atas + 0.001; v += step) {
+      var yy = y(v);
+      grid += '<line x1="' + L + '" y1="' + yy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + yy.toFixed(1) +
+        '" stroke="var(--line)"' + (v === 0 ? '' : ' stroke-dasharray="3 4"') + '/>';
+      tick += '<text x="' + (L - 10) + '" y="' + (yy + 3.5).toFixed(1) + '" font-size="10.5" ' +
+        'fill="var(--muted)" text-anchor="end">' + v + '</text>';
+    }
+
+    // ---- batang ----
+    var bars = '';
+    data.forEach(function (d, i) {
+      var cx = L + band * i + band / 2;
+      var x = cx - bw / 2;
+      var aktif = d.m === blnAktif;
+      var warna = aktif ? '#FF8A00' : '#0F4C4B';
+      if (!d.ada) {
+        // bulan tanpa catatan: kotak bergaris putus-putus, bukan batang bernilai 0
+        bars += '<rect x="' + x.toFixed(1) + '" y="' + (T + ph - 16) + '" width="' + bw.toFixed(1) +
+          '" height="16" rx="3" fill="none" stroke="var(--muted)" stroke-dasharray="3 3" opacity=".55">' +
+          '<title>' + BULAN[d.m] + ' ' + thn + ': belum ada catatan absensi</title></rect>';
+      } else if (d.n === 0) {
+        bars += '<rect x="' + x.toFixed(1) + '" y="' + (T + ph - 3) + '" width="' + bw.toFixed(1) +
+          '" height="3" rx="1.5" fill="' + warna + '" opacity=".35">' +
+          '<title>' + BULAN[d.m] + ' ' + thn + ': 0 TAP</title></rect>';
+      }
+      if (d.n > 0) {
+        var h = ph - (y(d.n) - T);
+        bars += '<rect x="' + x.toFixed(1) + '" y="' + y(d.n).toFixed(1) + '" width="' + bw.toFixed(1) +
+          '" height="' + Math.max(2, h).toFixed(1) + '" rx="3" fill="' + warna + '">' +
+          '<title>' + BULAN[d.m] + ' ' + thn + ': ' + d.n + ' TAP</title></rect>' +
+          '<text x="' + cx.toFixed(1) + '" y="' + (y(d.n) - 7).toFixed(1) + '" font-size="11" ' +
+          'font-weight="600" fill="var(--ink)" text-anchor="middle">' + d.n + '</text>';
+      }
+      bars += '<text x="' + cx.toFixed(1) + '" y="' + (T + ph + 18) + '" font-size="10.5" ' +
+        'fill="' + (aktif ? 'var(--ink)' : 'var(--muted)') + '"' +
+        (aktif ? ' font-weight="600"' : '') + ' text-anchor="middle">' +
+        BULAN[d.m].slice(0, 3) + '</text>';
+    });
+
+    $('#chTap').innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Diagram batang jumlah TAP per bulan tahun ' +
+        thn + '. ' + data.map(function (d) { return BULAN[d.m] + ' ' + d.n; }).join(', ') + '.">' +
+        grid + tick +
+        // sumbu
+        '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + ph) + '" stroke="var(--line)"/>' +
+        bars +
+        // judul sumbu
+        '<text x="' + (L + pw / 2) + '" y="' + (H - 12) + '" font-size="11" font-weight="600" ' +
+          'fill="var(--muted)" text-anchor="middle">Bulan ' + thn + '</text>' +
+        '<text transform="translate(15 ' + (T + ph / 2) + ') rotate(-90)" font-size="11" font-weight="600" ' +
+          'fill="var(--muted)" text-anchor="middle">Jumlah kejadian TAP</text>' +
+      '</svg>' +
+      '<div class="chartnote"><em><span class="dot" style="background:#FF8A00"></span>Bulan yang dipilih</em>' +
+      '<em><span class="dot" style="background:#0F4C4B"></span>Bulan lain</em>' +
+      (tanpaData ? '<em><span class="dot dash"></span>Belum ada catatan absensi</em>' : '') +
+      '</div>';
   }
 
   function renderBelum(tgl, list) {
@@ -775,9 +867,10 @@
   }
 
   function muat(pilihTerakhir) {
-    var y = +S.bulan.slice(0, 4), m = +S.bulan.slice(5, 7) - 1;
-    var d0 = parse(S.bulan + '-01'); d0.setFullYear(d0.getFullYear() - 1);
-    return API.kehadiran(iso(d0), S.bulan + '-' + hariBulan(y, m)).then(function (rows) {
+    var y = +S.bulan.slice(0, 4);
+    // Ambil satu tahun kalender penuh: grafik "TAP per bulan" menampilkan
+    // Jan-Des, jadi bulan setelah bulan aktif pun harus ikut terbaca.
+    return API.kehadiran(y + '-01-01', y + '-12-31').then(function (rows) {
       S.kehadiran = rows; bangunMap();
       if (pilihTerakhir) {
         var ada = rows.filter(function (k) { return k.tanggal.indexOf(S.bulan) === 0 && k.kode && k.kode !== 'BELUM'; })
